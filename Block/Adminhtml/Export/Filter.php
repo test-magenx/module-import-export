@@ -7,8 +7,6 @@ namespace Magento\ImportExport\Block\Adminhtml\Export;
 
 use Magento\Eav\Model\Entity\Attribute;
 use Magento\Catalog\Api\Data\ProductAttributeInterface;
-use Magento\Framework\App\ObjectManager;
-use Magento\ImportExport\Model\ResourceModel\Export\AttributeGridCollectionFactory;
 
 /**
  * Export filter block
@@ -43,28 +41,19 @@ class Filter extends \Magento\Backend\Block\Widget\Grid\Extended
     ];
 
     /**
-     * @var AttributeGridCollectionFactory
-     */
-    private $attributeGridCollectionFactory;
-
-    /**
      * @param \Magento\Backend\Block\Template\Context $context
      * @param \Magento\Backend\Helper\Data $backendHelper
      * @param \Magento\ImportExport\Helper\Data $importExportData
      * @param array $data
-     * @param AttributeGridCollectionFactory|null $attributeGridCollectionFactory
      */
     public function __construct(
         \Magento\Backend\Block\Template\Context $context,
         \Magento\Backend\Helper\Data $backendHelper,
         \Magento\ImportExport\Helper\Data $importExportData,
-        array $data = [],
-        ?AttributeGridCollectionFactory $attributeGridCollectionFactory = null
+        array $data = []
     ) {
         $this->_importExportData = $importExportData;
         parent::__construct($context, $backendHelper, $data);
-        $this->attributeGridCollectionFactory = $attributeGridCollectionFactory
-            ?: ObjectManager::getInstance()->get(AttributeGridCollectionFactory::class);
     }
 
     /**
@@ -274,7 +263,7 @@ class Filter extends \Magento\Backend\Block\Widget\Grid\Extended
                 '',
                 ['data' => $arguments]
             );
-            return $selectBlock->setOptions($options)->setValue($value !== '' ? $value : null)->getHtml();
+            return $selectBlock->setOptions($options)->setValue($value)->getHtml();
         } else {
             return __('We can\'t filter an attribute with no attribute options.');
         }
@@ -437,10 +426,7 @@ class Filter extends \Magento\Backend\Block\Widget\Grid\Extended
      */
     public function prepareCollection(\Magento\Framework\Data\Collection $collection)
     {
-        $attributeGridCollection = $this->attributeGridCollectionFactory->create();
-        $gridCollection = $attributeGridCollection->setItems($collection->getItems());
-        $this->setCollection($gridCollection);
-
-        return $collection;
+        $this->setCollection($collection);
+        return $this->getCollection();
     }
 }
