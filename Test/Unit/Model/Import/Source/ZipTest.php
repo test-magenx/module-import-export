@@ -17,55 +17,52 @@ class ZipTest extends TestCase
     /**
      * @var Write|MockObject
      */
-    private $directory;
+    protected $directory;
 
     /**
      * @var Zip|MockObject
      */
-    private $zip;
+    protected $zip;
 
-    /**
-     * @inheritdoc
-     */
     protected function setUp(): void
     {
-        $this->directory = $this->getMockBuilder(Write::class)->disableOriginalConstructor()
-            ->onlyMethods(['getRelativePath'])
+        $this->directory = $this->getMockBuilder(Write::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getRelativePath'])
             ->getMock();
     }
 
     /**
      * Test destination argument for the second getRelativePath after preg_replace.
      *
-     * @return void
      * @dataProvider constructorFileDestinationMatchDataProvider
      */
-    public function testConstructorFileDestinationMatch($fileName, $expectedfileName): void
+    public function testConstructorFileDestinationMatch($fileName, $expectedfileName)
     {
         $this->markTestIncomplete('The implementation of constructor has changed. Rewrite test to cover changes.');
 
-        $this->directory->method('getRelativePath')
-            ->withConsecutive([$fileName], [$expectedfileName]);
-        $this->invokeConstructor($fileName);
+        $this->directory->expects($this->at(0))->method('getRelativePath')->with($fileName);
+        $this->directory->expects($this->at(1))->method('getRelativePath')->with($expectedfileName);
+        $this->_invokeConstructor($fileName);
     }
 
     /**
      * @return array
      */
-    public function constructorFileDestinationMatchDataProvider(): array
+    public function constructorFileDestinationMatchDataProvider()
     {
         return [
             [
                 '$fileName' => 'test_file.txt',
-                '$expectedfileName' => 'test_file.txt'
+                '$expectedfileName' => 'test_file.txt',
             ],
             [
                 '$fileName' => 'test_file.zip',
-                '$expectedfileName' => 'test_file.csv'
+                '$expectedfileName' => 'test_file.csv',
             ],
             [
                 '$fileName' => '.ziptest_.zip.file.zip.ZIP',
-                '$expectedfileName' => '.ziptest_.zip.file.zip.csv'
+                '$expectedfileName' => '.ziptest_.zip.file.zip.csv',
             ]
         ];
     }
@@ -73,10 +70,9 @@ class ZipTest extends TestCase
     /**
      * Instantiate zip mock and invoke its constructor.
      *
-     * @return void
      * @param string $fileName
      */
-    private function invokeConstructor($fileName): void
+    protected function _invokeConstructor($fileName)
     {
         try {
             $this->zip = $this->getMockBuilder(

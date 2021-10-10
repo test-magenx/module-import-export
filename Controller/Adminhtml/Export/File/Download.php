@@ -9,12 +9,10 @@ namespace Magento\ImportExport\Controller\Adminhtml\Export\File;
 
 use Magento\Backend\App\Action;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\App\ObjectManager;
 use Magento\Framework\App\Response\Http\FileFactory;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\ImportExport\Controller\Adminhtml\Export as ExportController;
 use Magento\Framework\Filesystem;
-use Magento\ImportExport\Model\LocalizedFileName;
 use Throwable;
 
 /**
@@ -38,27 +36,19 @@ class Download extends ExportController implements HttpGetActionInterface
     private $filesystem;
 
     /**
-     * @var LocalizedFileName
-     */
-    private $localizedFileName;
-
-    /**
      * DownloadFile constructor.
      * @param Action\Context $context
      * @param FileFactory $fileFactory
      * @param Filesystem $filesystem
-     * @param LocalizedFileName|null $localizedFileName
      */
     public function __construct(
         Action\Context $context,
         FileFactory $fileFactory,
-        Filesystem $filesystem,
-        ?LocalizedFileName $localizedFileName = null
+        Filesystem $filesystem
     ) {
         $this->fileFactory = $fileFactory;
         $this->filesystem = $filesystem;
         parent::__construct($context);
-        $this->localizedFileName = $localizedFileName ?? ObjectManager::getInstance()->get(LocalizedFileName::class);
     }
 
     /**
@@ -90,8 +80,8 @@ class Download extends ExportController implements HttpGetActionInterface
             $directory = $this->filesystem->getDirectoryRead(DirectoryList::VAR_IMPORT_EXPORT);
             if ($directory->isFile($path)) {
                 return $this->fileFactory->create(
-                    $this->localizedFileName->getFileDisplayName($path),
-                    ['type' => 'filename', 'value' => $path],
+                    $path,
+                    $directory->readFile($path),
                     DirectoryList::VAR_IMPORT_EXPORT
                 );
             }

@@ -27,27 +27,20 @@ class CollectionByPagesIteratorTest extends TestCase
      */
     protected $_resourceModel;
 
-    /**
-     * @inheritDoc
-     */
     protected function setUp(): void
     {
         $this->_resourceModel = new CollectionByPagesIterator();
     }
 
-    /**
-     * @inheritDoc
-     */
     protected function tearDown(): void
     {
         unset($this->_resourceModel);
     }
 
     /**
-     * @return void
      * @covers \Magento\ImportExport\Model\ResourceModel\CollectionByPagesIterator::iterate
      */
-    public function testIterate(): void
+    public function testIterate()
     {
         $pageSize = 2;
         $pageCount = 3;
@@ -67,23 +60,9 @@ class CollectionByPagesIteratorTest extends TestCase
         $logger = $this->getMockForAbstractClass(LoggerInterface::class);
 
         /** @var AbstractDb|MockObject $collectionMock */
-        $collectionMock = $this->getMockBuilder(AbstractDb::class)->setConstructorArgs(
-            [
-                $entityFactory,
-                $logger,
-                $fetchStrategy
-            ]
-        )
-            ->onlyMethods(
-                [
-                    'clear',
-                    'setPageSize',
-                    'setCurPage',
-                    'count',
-                    'getLastPageNumber',
-                    'getSelect'
-                ]
-            )
+        $collectionMock = $this->getMockBuilder(AbstractDb::class)
+            ->setConstructorArgs([$entityFactory, $logger, $fetchStrategy])
+            ->setMethods(['clear', 'setPageSize', 'setCurPage', 'count', 'getLastPageNumber', 'getSelect'])
             ->getMockForAbstractClass();
 
         $collectionMock->expects($this->any())->method('getSelect')->willReturn($select);
@@ -103,19 +82,16 @@ class CollectionByPagesIteratorTest extends TestCase
         )->willReturn(
             $pageCount
         );
-        $withArgs = [];
 
         for ($pageNumber = 1; $pageNumber <= $pageCount; $pageNumber++) {
             for ($rowNumber = 1; $rowNumber <= $pageSize; $rowNumber++) {
                 $itemId = ($pageNumber - 1) * $pageSize + $rowNumber;
                 $item = new DataObject(['id' => $itemId]);
                 $collectionMock->addItem($item);
-                $withArgs[] = [$item];
+
+                $callbackMock->expects($this->at($itemId - 1))->method('callback')->with($item);
             }
         }
-        $callbackMock
-            ->method('callback')
-            ->withConsecutive(...$withArgs);
 
         $this->_resourceModel->iterate($collectionMock, $pageSize, [[$callbackMock, 'callback']]);
     }

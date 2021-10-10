@@ -35,11 +35,6 @@ class ExportTest extends TestCase
     protected $_exportConfigMock;
 
     /**
-     * @var AbstractEntity|MockObject
-     */
-    private $abstractMockEntity;
-
-    /**
      * Return mock for \Magento\ImportExport\Model\Export class
      *
      * @return Export
@@ -48,7 +43,8 @@ class ExportTest extends TestCase
     {
         $this->_exportConfigMock = $this->getMockForAbstractClass(ConfigInterface::class);
 
-        $this->abstractMockEntity = $this->getMockForAbstractClass(
+        /** @var $abstractMockEntity \Magento\ImportExport\Model\Export\AbstractEntity */
+        $abstractMockEntity = $this->getMockForAbstractClass(
             AbstractEntity::class,
             [],
             '',
@@ -79,7 +75,7 @@ class ExportTest extends TestCase
         $exportAdapterFac = $this->createMock(\Magento\ImportExport\Model\Export\Adapter\Factory::class);
         /** @var \Magento\ImportExport\Model\Export $mockModelExport */
         $mockModelExport = $this->getMockBuilder(Export::class)
-            ->setMethods(['getEntityAdapter', '_getEntityAdapter', '_getWriter', 'setWriter'])
+            ->setMethods(['getEntityAdapter', '_getEntityAdapter', '_getWriter'])
             ->setConstructorArgs([$logger, $filesystem, $this->_exportConfigMock, $entityFactory, $exportAdapterFac])
             ->getMock();
         $mockModelExport->expects(
@@ -87,45 +83,18 @@ class ExportTest extends TestCase
         )->method(
             'getEntityAdapter'
         )->willReturn(
-            $this->abstractMockEntity
+            $abstractMockEntity
         );
         $mockModelExport->expects(
             $this->any()
         )->method(
             '_getEntityAdapter'
         )->willReturn(
-            $this->abstractMockEntity
-        );
-        $mockModelExport->method(
-            'setWriter'
-        )->willReturn(
-            $this->abstractMockEntity
+            $abstractMockEntity
         );
         $mockModelExport->expects($this->any())->method('_getWriter')->willReturn($mockAdapterTest);
 
         return $mockModelExport;
-    }
-
-    /**
-     * Tests that export doesn't use `trim` function while counting the number of exported rows.
-     *
-     * Using PHP `trim` function allocates the same amount of memory as export result and leads
-     * to `out of memory` error.
-     */
-    public function testExportDoesntTrimResult()
-    {
-        $model = $this->_getMageImportExportModelExportMock();
-        $this->abstractMockEntity->method('export')
-            ->willReturn("export data  \n\n");
-        $model->setData([
-            Export::FILTER_ELEMENT_GROUP => [],
-            'entity' => 'catalog_product'
-        ]);
-        $model->export();
-        $this->assertStringContainsString(
-            'Exported 2 rows',
-            var_export($model->getFormatedLogTrace(), true)
-        );
     }
 
     /**

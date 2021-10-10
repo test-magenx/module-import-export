@@ -71,7 +71,7 @@ class EntityAbstractTest extends AbstractImportTestCase
         $resource = $this->createMock(ResourceConnection::class);
 
         $data = [
-            'string' => $string,
+            'coreString' => $string,
             'scopeConfig' => $scopeConfig,
             'importFactory' => $importFactory,
             'resourceHelper' => $resourceHelper,
@@ -369,17 +369,13 @@ class EntityAbstractTest extends AbstractImportTestCase
      * @covers \Magento\ImportExport\Model\Import\AbstractEntity::getBehavior
      *
      * @dataProvider dataProviderForTestGetBehaviorWithRowData
-     * @param string $inputBehavior
-     * @param array|null $rowData
-     * @param string $expectedBehavior
-     * @param array|null $availableBehaviors
+     * @param $inputBehavior
+     * @param $rowData
+     * @param $expectedBehavior
+     * @param null $availableBehaviors
      */
-    public function testGetBehaviorWithRowData(
-        string $inputBehavior,
-        ?array $rowData,
-        string $expectedBehavior,
-        ?array $availableBehaviors = null
-    ) {
+    public function testGetBehaviorWithRowData($inputBehavior, $rowData, $expectedBehavior, $availableBehaviors = null)
+    {
         $property = new \ReflectionProperty($this->_model, '_availableBehaviors');
         $property->setAccessible(true);
 
