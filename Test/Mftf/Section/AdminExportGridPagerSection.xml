@@ -8,8 +8,8 @@
 
 <sections xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="urn:magento:mftf:Page/etc/SectionObject.xsd">
-    <section name="AdminImportHeaderSection">
-        <element name="checkDataButton" type="button" selector="#upload_button" timeout="30"/>
-        <element name="messageNote" type="text" selector="#import_file-note" timeout="30"/>
+    <section name="AdminExportGridPagerSection">
+        <element name="pager" type="text" selector=".admin__data-grid-header div.admin__data-grid-pager-wrap"/>
+        <element name="recordsLabel" type="text" selector=".admin__data-grid-header .admin__control-support-text"/>
     </section>
 </sections>
